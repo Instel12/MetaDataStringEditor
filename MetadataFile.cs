@@ -5,8 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace MetaDataStringEditor {
-    class MetadataFile : IDisposable {
+namespace MetaDataStringEditor
+{
+    class MetadataFile : IDisposable
+    {
         public BinaryReader reader;
 
         private uint stringLiteralOffset;
@@ -17,40 +19,46 @@ namespace MetaDataStringEditor {
         private List<StringLiteral> stringLiterals = new List<StringLiteral>();
         public List<byte[]> strBytes = new List<byte[]>();
 
-        public MetadataFile(string fullName) {
+        public MetadataFile(string fullName)
+        {
             reader = new BinaryReader(File.OpenRead(fullName));
 
-            // 读取文件
+            // Read the file
             ReadHeader();
 
-            // 读取字符串
+            // Read string table
             ReadLiteral();
             ReadStrByte();
 
-            Logger.I("基础读取完成");
+            Logger.I("Base read completed");
         }
 
-        private void ReadHeader() {
-            Logger.I("读取头部");
+        private void ReadHeader()
+        {
+            Logger.I("Read header");
             uint vansity = reader.ReadUInt32();
-            if (vansity != 0xFAB11BAF) {
-                throw new Exception("标志检查不通过");
+            if (vansity != 0xFAB11BAF)
+            {
+                throw new Exception("Flag check failed");
             }
             int version = reader.ReadInt32();
-            stringLiteralOffset = reader.ReadUInt32();      // 列表区的位置，后面不会改了
-            stringLiteralCount = reader.ReadUInt32();       // 列表区的大小，后面不会改了
-            DataInfoPosition = reader.BaseStream.Position;  // 记一下当前位置，后面要用
-            stringLiteralDataOffset = reader.ReadUInt32();  // 数据区的位置，可能要改
-            stringLiteralDataCount = reader.ReadUInt32();   // 数据区的长度，可能要改
+            stringLiteralOffset = reader.ReadUInt32();      // Position of the list section (unchanged later)
+            stringLiteralCount = reader.ReadUInt32();       // Size of the list section (unchanged later)
+            DataInfoPosition = reader.BaseStream.Position;  // Store the current position (used later)
+            stringLiteralDataOffset = reader.ReadUInt32();  // Position of the data section (may change)
+            stringLiteralDataCount = reader.ReadUInt32();   // Length of the data section (may change)
         }
 
-        private void ReadLiteral() {
-            Logger.I("读取Literal");
+        private void ReadLiteral()
+        {
+            Logger.I("Read literal");
             ProgressBar.SetMax((int)stringLiteralCount / 8);
 
             reader.BaseStream.Position = stringLiteralOffset;
-            for (int i = 0; i < stringLiteralCount / 8; i++) {
-                stringLiterals.Add(new StringLiteral {
+            for (int i = 0; i < stringLiteralCount / 8; i++)
+            {
+                stringLiterals.Add(new StringLiteral
+                {
                     Length = reader.ReadUInt32(),
                     Offset = reader.ReadUInt32()
                 });
@@ -58,30 +66,34 @@ namespace MetaDataStringEditor {
             }
         }
 
-        private void ReadStrByte() {
-            Logger.I("读取字符串的Bytes");
+        private void ReadStrByte()
+        {
+            Logger.I("Read string bytes");
             ProgressBar.SetMax(stringLiterals.Count);
 
-            for (int i = 0; i < stringLiterals.Count; i++) {
+            for (int i = 0; i < stringLiterals.Count; i++)
+            {
                 reader.BaseStream.Position = stringLiteralDataOffset + stringLiterals[i].Offset;
                 strBytes.Add(reader.ReadBytes((int)stringLiterals[i].Length));
                 ProgressBar.Report();
             }
         }
 
-        public void WriteToNewFile(string fileName) {
+        public void WriteToNewFile(string fileName)
+        {
             BinaryWriter writer = new BinaryWriter(File.Create(fileName));
 
-            // 先全部复制过去
+            // Copy everything to the new file first
             reader.BaseStream.Position = 0;
             reader.BaseStream.CopyTo(writer.BaseStream);
 
-            // 更新Literal
-            Logger.I("更新Literal");
+            // Update literals
+            Logger.I("Update literal");
             ProgressBar.SetMax(stringLiterals.Count);
             writer.BaseStream.Position = stringLiteralOffset;
             uint count = 0;
-            for (int i = 0; i < stringLiterals.Count; i++) {
+            for (int i = 0; i < stringLiterals.Count; i++)
+            {
 
                 stringLiterals[i].Offset = count;
                 stringLiterals[i].Length = (uint)strBytes[i].Length;
@@ -93,44 +105,52 @@ namespace MetaDataStringEditor {
                 ProgressBar.Report();
             }
 
-            // 进行一次对齐，不确定是否一定需要，但是Unity是做了，所以还是补上为好
+            // Align to 4 bytes. Not sure if absolutely required,
+            // but Unity does it, so better to include it.
             var tmp = (stringLiteralDataOffset + count) % 4;
             if (tmp != 0) count += 4 - tmp;
 
-            // 检查是否够空间放置
-            if (count > stringLiteralDataCount) {
-                // 检查数据区后面还有没有别的数据，没有就可以直接延长数据区
-                if (stringLiteralDataOffset + stringLiteralDataCount < writer.BaseStream.Length) {
-                    // 原有空间不够放，也不能直接延长，所以整体挪到文件尾
+            // Check if there’s enough space to place the data
+            if (count > stringLiteralDataCount)
+            {
+                // Check if there’s any other data after the data section
+                // If not, we can just extend it
+                if (stringLiteralDataOffset + stringLiteralDataCount < writer.BaseStream.Length)
+                {
+                    // Not enough space, and can’t extend directly,
+                    // so move the whole section to the end of the file
                     stringLiteralDataOffset = (uint)writer.BaseStream.Length;
                 }
             }
             stringLiteralDataCount = count;
 
-            // 写入string
-            Logger.I("更新String");
+            // Write the strings
+            Logger.I("Update string");
             ProgressBar.SetMax(strBytes.Count);
             writer.BaseStream.Position = stringLiteralDataOffset;
-            for (int i = 0; i < strBytes.Count; i++) {
+            for (int i = 0; i < strBytes.Count; i++)
+            {
                 writer.Write(strBytes[i]);
                 ProgressBar.Report();
             }
 
-            // 更新头部
-            Logger.I("更新头部");
+            // Update the header
+            Logger.I("Update header");
             writer.BaseStream.Position = DataInfoPosition;
             writer.Write(stringLiteralDataOffset);
             writer.Write(stringLiteralDataCount);
 
-            Logger.I("更新完成");
+            Logger.I("Update completed");
             writer.Close();
         }
-        
-        public void Dispose() {
+
+        public void Dispose()
+        {
             reader?.Dispose();
         }
-        
-        public class StringLiteral {
+
+        public class StringLiteral
+        {
             public uint Length;
             public uint Offset;
         }

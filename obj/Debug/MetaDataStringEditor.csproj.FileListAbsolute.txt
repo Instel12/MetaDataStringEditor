@@ -1,0 +1,12 @@
+C:\Users\spenc\Downloads\MetaDataStringEditor-master\MetaDataStringEditor-master\obj\Debug\MetaDataStringEditor.csproj.AssemblyReference.cache
+C:\Users\spenc\Downloads\MetaDataStringEditor-master\MetaDataStringEditor-master\bin\Debug\MetaDataStringEditor.exe.config
+C:\Users\spenc\Downloads\MetaDataStringEditor-master\MetaDataStringEditor-master\bin\Debug\MetaDataStringEditor.exe
+C:\Users\spenc\Downloads\MetaDataStringEditor-master\MetaDataStringEditor-master\bin\Debug\MetaDataStringEditor.pdb
+C:\Users\spenc\Downloads\MetaDataStringEditor-master\MetaDataStringEditor-master\obj\Debug\MetaDataStringEditor.EditForm.resources
+C:\Users\spenc\Downloads\MetaDataStringEditor-master\MetaDataStringEditor-master\obj\Debug\MetaDataStringEditor.MainForm.resources
+C:\Users\spenc\Downloads\MetaDataStringEditor-master\MetaDataStringEditor-master\obj\Debug\MetaDataStringEditor.Properties.Resources.resources
+C:\Users\spenc\Downloads\MetaDataStringEditor-master\MetaDataStringEditor-master\obj\Debug\MetaDataStringEditor.csproj.GenerateResource.cache
+C:\Users\spenc\Downloads\MetaDataStringEditor-master\MetaDataStringEditor-master\obj\Debug\MetaDataStringEditor.csproj.CoreCompileInputs.cache
+C:\Users\spenc\Downloads\MetaDataStringEditor-master\MetaDataStringEditor-master\obj\Debug\MetaDataStringEditor.exe
+C:\Users\spenc\Downloads\MetaDataStringEditor-master\MetaDataStringEditor-master\obj\Debug\MetaDataStringEditor.pdb
+C:\Users\spenc\Downloads\MetaDataStringEditor-master\MetaDataStringEditor-master\obj\Debug\MetaDataStringEditor.Credits.resources
