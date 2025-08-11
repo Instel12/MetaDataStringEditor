@@ -1,3 +1,5 @@
+# USE THIS SHART RESPONCIVLY AND DONT USE IT TO CHEAT IN GAMES PLEASE
+(well I guess you **COULD** but I do not condome it)
 # Partial String Modification Tool for global-metadata.dat
   For Android games exported with Unity’s IL2CPP scripting backend, the strings used in the code are compiled into the assets\bin\Data\Managed\Metadata\global-metadata.dat file. As part of localization work, I made a simple tool to modify some of the strings inside this file.
 
